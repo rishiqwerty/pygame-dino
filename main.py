@@ -30,11 +30,13 @@ class Obstacles:
     def __init__(self, win):
         self.win = win
         self.building = pygame.image.load("res/building.png").convert()
+        self.cloud = pygame.image.load("res/cloud.png").convert()
         self.i = 640
         self.j = 1200
+        self.k = 720
         self.width = 1280
         self.count = 0
-
+        
     def obs_one(self):
         self.win.blit(self.building, (self.i, 640))
         self.win.blit(self.building, (self.width+self.i, 640))
@@ -44,6 +46,7 @@ class Obstacles:
             self.count += 100
         self.i -= 8
         self.count += 1
+        
 
     def obs_two(self):
         self.win.blit(self.building, (self.j, 640))
@@ -53,7 +56,14 @@ class Obstacles:
             self.j = 0
             self.count += 100
         self.j -= 8
-        self.count += 1
+    def cloud_one(self):
+        self.win.blit(self.cloud, (self.k, 160))
+        self.win.blit(self.cloud, (self.width+self.k, 160))
+        if self.k == -self.width:
+            self.win.blit(self.cloud, (self.width+self.k, 160))
+            self.k = 0
+            self.count += 100
+        self.k -= 8
 
 class Game:
     def __init__(self):
@@ -63,11 +73,14 @@ class Game:
         self.player.draw()
         self.obstacles = Obstacles(self.win)
         self.obstacles.obs_one()
+        self.obstacles.obs_two()
+        self.obstacles.cloud_one()
         
     def collision(self, x1, y1, x2, x3):
-        if y1 == 640 and (x1>=x2 and x1<=x2+64):
+        print(x3)
+        if y1 == 640 and (abs(x2)==40 or x2 == -1232):
             return True
-        if y1 == 640 and (x1>=x3 and x1<=x3+64):
+        if y1 == 640 and (abs(x3) == 40 or x3 == -1232):
             return True
     def display_score(self):
         font = pygame.font.SysFont('Roboto',30)
@@ -77,6 +90,7 @@ class Game:
     def game_play(self):
         self.obstacles.obs_one()
         self.obstacles.obs_two()
+        self.obstacles.cloud_one()
         self.player.jump_player(self.userInput)
         self.display_score()
         if self.collision(self.player.x, self.player.y, self.obstacles.j, self.obstacles.i):
