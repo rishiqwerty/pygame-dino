@@ -1,6 +1,7 @@
 from os import SEEK_END
 import pygame
-from pygame import display
+from pygame.locals import *
+from pygame.constants import K_RETURN
 
 class Player:
     def __init__(self, win):
@@ -63,33 +64,62 @@ class Game:
         self.obstacles = Obstacles(self.win)
         self.obstacles.obs_one()
         
-    def collision(self, x1, y1, x2, y2):
+    def collision(self, x1, y1, x2, x3):
         if y1 == 640 and (x1>=x2 and x1<=x2+64):
-                return True
+            return True
+        if y1 == 640 and (x1>=x3 and x1<=x3+64):
+            return True
     def display_score(self):
         font = pygame.font.SysFont('Roboto',30)
         score = font.render(f"Score: {self.obstacles.count}", True, (0, 0, 0))
         self.win.blit(score, (800,30))
-
+        pygame.display.update()
+    def game_play(self):
+        self.obstacles.obs_one()
+        self.obstacles.obs_two()
+        self.player.jump_player(self.userInput)
+        self.display_score()
+        if self.collision(self.player.x, self.player.y, self.obstacles.j, self.obstacles.i):
+            raise "Game Over"
+        pygame.display.update()
+        pygame.time.delay(30)
+    def show_game_over(self):
+        self.win.fill((255,255,255))
+        font = pygame.font.SysFont('Roboto',30)
+        line1 = font.render(f"Game is over! Your score is {self.obstacles.count}", True, (0, 0, 0))
+        self.win.blit(line1, (200,300))
+        line2 = font.render("To play again press Enter, To exit press Escape", True, (0, 0, 0))
+        self.win.blit(line2,(200, 350))
+        pygame.display.update()
+    def game_reset(self):
+        self.player = Player(self.win)
+        self.obstacles = Obstacles(self.win)
     def run(self):
         run = True
+        pause = False
         while run:
 
             self.win.fill((255, 255, 255))
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
-            self.obstacles.obs_one()
-            self.obstacles.obs_two()
+                
             # Movement
             self.userInput = pygame.key.get_pressed()
             #Jump
-            self.player.jump_player(self.userInput)
-            self.display_score()
-            if self.collision(self.player.x, self.player.y, self.obstacles.j, self.obstacles.i):
-                print ("Game Over")
-            pygame.display.update()
-            pygame.time.delay(30)
+            if self.userInput[pygame.K_RETURN]:
+                pause = False
+            if self.userInput[pygame.K_ESCAPE]:
+                run = False
+            try:
+                if not pause:
+                    self.game_play()
+            except Exception as e:
+                self.show_game_over()
+                pause = True
+                self.game_reset()
+            
+            
 
 if __name__ == '__main__':
     game = Game()
