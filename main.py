@@ -1,5 +1,6 @@
 from os import SEEK_END
 import pygame
+from pygame.image import load
 from pygame.locals import *
 from pygame.constants import K_RETURN
 
@@ -14,6 +15,8 @@ class Player:
         self.jump = False
     def draw(self):
         self.win.blit(self.image, (self.x, self.y))
+        self.sun = pygame.image.load("res/sun.png").convert()
+        self.win.blit(self.sun, (90, 20))
         pygame.display.update()
     def jump_player(self, userInput):
         if self.jump is False and userInput[pygame.K_SPACE]:
@@ -31,9 +34,13 @@ class Obstacles:
         self.win = win
         self.building = pygame.image.load("res/building.png").convert()
         self.cloud = pygame.image.load("res/cloud.png").convert()
+        self.plane = pygame.image.load("res/aeroplane.png").convert()
+        self.balloon = pygame.image.load("res/balloon.jpg").convert()
         self.i = 640
         self.j = 1200
         self.k = 720
+        self.l = 440
+        self.m = 220
         self.width = 1280
         self.count = 0
         
@@ -64,6 +71,21 @@ class Obstacles:
             self.k = 0
             self.count += 100
         self.k -= 8
+    def plane_one(self):
+        self.win.blit(self.plane, (self.l, 80))
+        self.win.blit(self.plane, (self.width+self.l, 80))
+        if self.l == -self.width:
+            self.win.blit(self.plane, (self.width+self.l, 80))
+            self.l = 0
+        self.l -= 10
+    def balloon_one(self):
+        self.win.blit(self.balloon, (self.m, 220))
+        self.win.blit(self.balloon, (self.width+self.m, 220))
+        if self.m == -self.width:
+            self.win.blit(self.balloon, (self.width+self.m, 220))
+            self.m = 0
+        self.m -= 4
+        pygame.display.update()
 
 class Game:
     def __init__(self):
@@ -75,12 +97,16 @@ class Game:
         self.obstacles.obs_one()
         self.obstacles.obs_two()
         self.obstacles.cloud_one()
+        self.obstacles.plane_one()
+        self.obstacles.balloon_one()
+
+
         
     def collision(self, x1, y1, x2, x3):
         print(x3)
-        if y1 == 640 and (abs(x2)==40 or x2 == -1232):
+        if y1 == 640 and (abs(x2)==40 or x2 == -1232 or x1 == x2):
             return True
-        if y1 == 640 and (abs(x3) == 40 or x3 == -1232):
+        if y1 == 640 and (abs(x3) == 40 or x3 == -1232 or x1 == x3):
             return True
     def display_score(self):
         font = pygame.font.SysFont('Roboto',30)
@@ -91,6 +117,8 @@ class Game:
         self.obstacles.obs_one()
         self.obstacles.obs_two()
         self.obstacles.cloud_one()
+        self.obstacles.plane_one()
+        self.obstacles.balloon_one()
         self.player.jump_player(self.userInput)
         self.display_score()
         if self.collision(self.player.x, self.player.y, self.obstacles.j, self.obstacles.i):
