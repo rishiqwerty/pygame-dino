@@ -1,5 +1,4 @@
 import pygame
-from pygame.image import load
 from pygame.locals import *
 
 # Player class contains movement of dianosaur
@@ -84,6 +83,7 @@ class Obstacles:
             self.win.blit(self.plane, (self.width+self.plane_position, 80))
             self.plane_position = 0
         self.plane_position -= 10
+
     def balloon_one(self):
         self.win.blit(self.balloon, (self.balloon_position, 220))
         self.win.blit(self.balloon, (self.width+self.balloon_position, 220))
